@@ -6,20 +6,17 @@ on that line/column, have it flash. and if it all works out, change the
 boolean statement and have the level increase away from the tutorial
 */
 
-  int xcoord = 4; // X-coordinate of the cursor
-  int ycoord = 4; // Y-coordinate of the cursor
   
 //Upper left hand corner of each of the 16 2x2 squares. starting upper left, reading like a book. b for board
 //change 'random' to int color, which will be an array equaling whatever colors wanted?
 
 
-struct Board
 
+struct Board
 {
   int x; //coordinates for each of the b points
   int y;
   int z;         //[13] = {1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14}; //colors the dots- needs to be RANDOM
-  
 };
   
   //top row
@@ -46,33 +43,17 @@ struct Board
   Board boardPoints[16] = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16};
 
 
+  int xcoord = 4; // X-coordinate of the cursor
+  int ycoord = 4; // Y-coordinate of the cursor
+  int counter;
+
 void setup()                   
 {
-  ClearSlate();
   MeggyJrSimpleSetup();     
 }
 
-void loop()       
+void updateCursor()
 {
-  
-  drawCursor();
-  
-  drawBoard();
-  
-  DisplaySlate();
-  
-}
-
-
-void drawCursor()
-{
-  DrawPx(xcoord, ycoord, White);           // Draw white dot at x=4, y=4
-  DisplaySlate();                  // Write the drawing to the screen.
-  delay(500);                  
-  ClearSlate();                
-  DisplaySlate();                 
-  delay(200);
-  
   CheckButtonsDown(); //check to see which button has been pressed
   
   if (Button_Up) //move dot up one space
@@ -109,15 +90,33 @@ void drawBoard() //outline loop that draws all the dots
 {
   for(int i = 0; i<16; i++) //go along every px
     {
-       drawFour(boardPoints[i]); //draws drawFour for every point
+       DrawPx(boardPoints[i].x, boardPoints[i].y, boardPoints[i].z); //RANDOM Vx4
+       DrawPx(boardPoints[i].x+1, boardPoints[i].y, boardPoints[i].z);
+       DrawPx(boardPoints[i].x, boardPoints[i].y-1, boardPoints[i].z);
+       DrawPx(boardPoints[i].x+1, boardPoints[i].y-1, boardPoints[i].z); 
     }
 }
+//
+//void drawFour(int i) //(Board origin) //drawing each 2x2
+//{
+//  DrawPx(origin.x, origin.y, origin.z); //RANDOM Vx4
+//  DrawPx(origin.x+1, origin.y, origin.z);
+//  DrawPx(origin.x, origin.y+1, origin.z);
+//  DrawPx(origin.x+1, origin.y+1, origin.z);
+//}
 
-void drawFour(Board origin) //(Board origin) //drawing each 2x2
+void loop()       
 {
-  DrawPx(origin.x, origin.y, origin.z); //RANDOM Vx4
-  DrawPx(origin.x+1, origin.y, origin.z);
-  DrawPx(origin.x, origin.y+1, origin.z);
-  DrawPx(origin.x+1, origin.y+1, origin.z);
-}
+  drawBoard();
+  counter++;
+  if (counter > 100) counter = 0;
+  if (counter % 2 == 0) 
+    DrawPx(xcoord,ycoord,White);
+  updateCursor();
+  
 
+  
+  DisplaySlate();
+  delay(200);
+  ClearSlate();
+}
