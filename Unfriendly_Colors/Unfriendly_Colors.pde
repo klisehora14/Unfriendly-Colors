@@ -52,6 +52,22 @@ void setup()
   MeggyJrSimpleSetup();     
 }
 
+void loop()       
+{
+  drawBoard();
+  counter++;
+  if (counter > 100) counter = 0;
+  if (counter % 2 == 0) 
+    DrawPx(xcoord,ycoord,White);
+  updateCursor();
+  
+
+  
+  DisplaySlate();
+  delay(200);
+  ClearSlate();
+}
+
 void updateCursor()
 {
   CheckButtonsDown(); //check to see which button has been pressed
@@ -96,27 +112,21 @@ void drawBoard() //outline loop that draws all the dots
        DrawPx(boardPoints[i].x+1, boardPoints[i].y-1, boardPoints[i].z); 
     }
 }
-//
-//void drawFour(int i) //(Board origin) //drawing each 2x2
-//{
-//  DrawPx(origin.x, origin.y, origin.z); //RANDOM Vx4
-//  DrawPx(origin.x+1, origin.y, origin.z);
-//  DrawPx(origin.x, origin.y+1, origin.z);
-//  DrawPx(origin.x+1, origin.y+1, origin.z);
-//}
 
-void loop()       
+void flashing() //make the dots flash if they're on the same row or column
 {
-  drawBoard();
-  counter++;
-  if (counter > 100) counter = 0;
-  if (counter % 2 == 0) 
-    DrawPx(xcoord,ycoord,White);
-  updateCursor();
-  
-
-  
-  DisplaySlate();
-  delay(200);
-  ClearSlate();
+  for (int k = 0; k < 16; i++)
+    {
+      for (int j = k; j < 16; j++)
+//         if(b1 == b2)
+//           {
+//             b1
+//           }
+       
+    }
 }
+
+//
+//for (int i =0; i< arraysize; i++){
+//for (int j = i; j < arraysize; j++ ){
+//compare array[i] to array[j] and do w.e you need
