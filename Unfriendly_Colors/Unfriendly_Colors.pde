@@ -53,7 +53,11 @@ struct Board
   int selectedX; //location for storing selected points
   int selectedY;
   int selectedZ;
+  int selectedIndex;
   boolean isSelecting = false;
+  
+  boolean wonGame = false;
+  
 
 void setup()                   
 {
@@ -62,21 +66,29 @@ void setup()
 
 void loop()       
 {
-  drawBoard();
-  counter++;
-  if (counter > 100) counter = 0;
-  {
-    if (counter % 2 == 0) 
-      {
-        updateCursor();
-       }
-  }
+  if (wonGame = false)
+    {
+      drawBoard();
+      counter++;
+      if (counter > 100) counter = 0;
+        {
+          if (counter % 2 == 0) 
+            {
+              updateCursor();
+             }
+        }
   
-//  flashing();
+  //  flashing();
   
-  DisplaySlate();
-  delay(200);
-  ClearSlate();
+      DisplaySlate();
+      delay(200);
+      ClearSlate();
+    }
+  else //if wonGame is true, i.e. they have completed a levelll
+    {
+      newBoard(); //draws a board with new z for each point.
+    }
+  
 }
 
 
@@ -85,41 +97,62 @@ void selectSquare() //selecting one of the square blocks. xcoord,ycoord selects 
   CheckButtonsDown();
   if (Button_A) //select
     {
-      //store points in an empty array? 
+      //store points in empty ints 
       if (isSelecting == false)
         {
           isSelecting = true;
           //A button has been pressed for the first time, selecting the point that it is on. need to store that point.
-          selectedX = current x point of what the curser is on;
-          selectedY = current Y point of what the curser is on;
-          selectedZ = current Z point of what the curser is on;
+          selectedX = xcoord; //current x point of what the curser is on, also the x coord of the board point
+          selectedY = ycoord; //current Y point of what the curser is on, also the y coord of the board point
+          for (int i = 0; i < 16; i++)
+          {
+            if (xcoord == boardPoints[i].x && ycoord == boardPoints[i].y){
+              selectedZ = boardPoints[i].z; //color of current  board point
+              selectedIndex = i; //current z color
+              break;
+            }
+          }
         }
-      else
+      else //if isSelecting is true
         {
           if (counter % 2 == 1) //every other turn, flash it to the same tempo as the curser but opposite it.
             {
               ClearSlate();
               delay(200);
-              {
-                //code to make it switch with the next one selected
-              }
+                //code to make it switch with the next one selected 
+                  //current z switch with selectedZ
+                    //should, at this point, stop flashing because of the else statement.
+               for (int i = 0; i < 16; i++)
+                {
+                  if (xcoord == boardPoints[i].x && ycoord == boardPoints[i].y)
+                    {
+                       boardPoints[i].z = boardPoints[selectedIndex].z; //color of current  board point
+                       boardPoints[selectedIndex].z = selectedIndex;
+                       isSelecting = false;
+                       break; //stops it from seraching
+                     }
+          
+                 }
             }
         }
-    }
    if (Button_B)//unselect
      {
-       //empty that open array of the points that were put in by button A
+       isSelecting = false; //unselects the point
      }
-   if (Button_B && Button_A)
-     {
-       //have z regenerate
-     }
-   if (Button_A && Button_B)
-     {
-       //have z regenerate
-     }
+//   if (Button_B && Button_A)
+//     {
+//       //have z regenerate
+            //maybe same code that recognizes that there are none of the same color on the line or column
+            //enact that same code here.
+//     }
+//   if (Button_A && Button_B)
+//     {
+//       //have z regenerate
+            //maybe same code that recognizes that there are none of the same color on the line or column
+            //enact that same code here.
+//     }
 }
-
+}
 void drawCursor() //draw the curser as a 2x2 block
 {
   DrawPx(xcoord, ycoord, 7);
@@ -194,6 +227,15 @@ void flashing() //makes it flash
           }
       }
   }
+}
+
+void newBoard() //genearates new random z for all points in board points
+{
+  for (int i = 0; i < 16; i++)
+    {
+      boardPoints[i].z = random(6)+1;
+      wonGame = true;
+    }
 }
 
 //void flashing() //make the dots flash if they're on the same row or column
