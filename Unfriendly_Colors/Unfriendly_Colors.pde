@@ -58,6 +58,72 @@ struct Board
   
   boolean wonGame = false;
   
+  //boolean for checkAllColors
+
+  //b1
+  boolean b1x = false; //board point b1 x row
+  boolean b1y =false; //board point b1 y row .... etc for all following
+  
+  //b2
+  boolean b2x = false; 
+  boolean b2y = false;
+  
+  //b3
+  boolean b3x = false; 
+  boolean b3y = false;
+  
+  //b4
+  boolean b4x = false; 
+  boolean b4y = false; 
+  
+  //b5
+  boolean b5x = false;
+  boolean b5y = false;
+  
+  //b6
+  boolean b6x = false; 
+  boolean b6y = false;
+  
+  //b7
+  boolean b7x = false; 
+  boolean b7y = false;
+  
+  //b8
+  boolean b8x = false; 
+  boolean b8y = false;
+  
+  //b9
+  boolean b9x = false; 
+  boolean b9y = false;
+  
+  //b10
+  boolean b10x = false; 
+  boolean b10y = false;
+  
+  //b11
+  boolean b11x = false; 
+  boolean b11y = false;
+  
+  //b12
+  boolean b12x = false; 
+  boolean b12y = false;
+  
+  //b13
+  boolean b13x = false; 
+  boolean b13y = false;
+  
+  //b14
+  boolean b14x = false; 
+  boolean b14y = false;
+  
+  //b15
+  boolean b15x = false; 
+  boolean b15y = false;
+  
+  //b16
+  boolean b16x = false; 
+  boolean b16y = false;
+  
 
 void setup()                   
 {
@@ -70,25 +136,30 @@ void loop()
     {
       drawBoard();
       counter++;
+      selectSquare();
+      checkAllColors();
       if (counter > 100) counter = 0;
+      if (counter % 2 == 0) //makes all things insi
         {
-          if (counter % 2 == 0) 
-            {
-              updateCursor();
-             }
-        }
-  
-  //  flashing();
-  
-      DisplaySlate();
-      delay(200);
-      ClearSlate();
-    }
+          updateCursor();
+         }
+      }
+    
   else //if wonGame is true, i.e. they have completed a levelll
     {
       newBoard(); //draws a board with new z for each point.
     }
   
+}
+
+void flashing()
+{
+  if (counter % 2 == 0)
+    {
+      DisplaySlate();
+      delay(200);
+      ClearSlate();
+    }
 }
 
 
@@ -106,7 +177,8 @@ void selectSquare() //selecting one of the square blocks. xcoord,ycoord selects 
           selectedY = ycoord; //current Y point of what the curser is on, also the y coord of the board point
           for (int i = 0; i < 16; i++)
           {
-            if (xcoord == boardPoints[i].x && ycoord == boardPoints[i].y){
+            if (xcoord == boardPoints[i].x && ycoord == boardPoints[i].y)
+            {
               selectedZ = boardPoints[i].z; //color of current  board point
               selectedIndex = i; //current z color
               break;
@@ -117,18 +189,15 @@ void selectSquare() //selecting one of the square blocks. xcoord,ycoord selects 
         {
           if (counter % 2 == 1) //every other turn, flash it to the same tempo as the curser but opposite it.
             {
-              ClearSlate();
-              delay(200);
-                //code to make it switch with the next one selected 
-                  //current z switch with selectedZ
-                    //should, at this point, stop flashing because of the else statement.
-               for (int i = 0; i < 16; i++)
+              flashing();
+              for (int i = 0; i < 16; i++)
                 {
                   if (xcoord == boardPoints[i].x && ycoord == boardPoints[i].y)
                     {
                        boardPoints[i].z = boardPoints[selectedIndex].z; //color of current  board point
                        boardPoints[selectedIndex].z = selectedIndex;
                        isSelecting = false;
+                       levelComplete(); //check to see if that was the last one to fix, if so, wonGame will = true
                        break; //stops it from seraching
                      }
           
@@ -139,18 +208,22 @@ void selectSquare() //selecting one of the square blocks. xcoord,ycoord selects 
      {
        isSelecting = false; //unselects the point
      }
-//   if (Button_B && Button_A)
-//     {
-//       //have z regenerate
-            //maybe same code that recognizes that there are none of the same color on the line or column
-            //enact that same code here.
-//     }
-//   if (Button_A && Button_B)
-//     {
-//       //have z regenerate
-            //maybe same code that recognizes that there are none of the same color on the line or column
-            //enact that same code here.
-//     }
+  if (Button_B && Button_A)
+    {
+      for (int i = 0; i < 16; i++)
+        {
+          Tone_Start(ToneC3, 100);
+          boardPoints[i].z = random(6)+1;
+        }
+    }
+  if (Button_A && Button_B)
+    {
+      for (int i = 0; i < 16; i++)
+        {
+          Tone_Start(ToneC3, 100);
+          boardPoints[i].z = random(6)+1;
+        }
+    }
 }
 }
 void drawCursor() //draw the curser as a 2x2 block
@@ -209,34 +282,439 @@ void drawBoard() //outline loop that draws all the dots
 }
 
 
-void flashing() //makes it flash
-{
-  for (int i = 0; i<16; i++)
-  {
-    for (int j = j+1; j<16; j++)
-      {
-        if (boardPoints[i].x == boardPoints[j].x || boardPoints[i].y == boardPoints[j].y) //draw out lines and columns
-          {
-            if (boardPoints[i].z == boardPoints[j].z) //if they have the same z (color) //ERROR
-            {
-              if (counter % 2 == 1) //every other time through the loop, flash
-              {
-                ClearSlate();
-              }
-            }
-          }
-      }
-  }
-}
+//void flashing() //makes it flash
+//{
+//  for (int i = 0; i<16; i++)
+//  {
+//    for (int j = j+1; j<16; j++)
+//      {
+//        if (boardPoints[i].x == boardPoints[j].x || boardPoints[i].y == boardPoints[j].y) //draw out lines and columns
+//          {
+//            if (boardPoints[i].z == boardPoints[j].z) //if they have the same z (color) //ERROR
+//            {
+//              if (counter % 2 == 1) //every other time through the loop, flash
+//              {
+//                ClearSlate();
+//              }
+//            }
+//          }
+//      }
+//  }
+//}
 
-void newBoard() //genearates new random z for all points in board points
+void newBoard() //genearates new random z for all points in board points.. plays a sound, player 'levels up'
 {
   for (int i = 0; i < 16; i++)
     {
+      Tone_Start(ToneFs3, 100); 
       boardPoints[i].z = random(6)+1;
-      wonGame = true;
+      wonGame = false;
     }
 }
+
+void levelComplete() //if there are none flashing (the boolean statements will all be true), then wonGame= true and greate a new board (newBoard())
+{                    // hard coded because cannot find a faster way to do it
+  checkAllColors(); //see iff the boolean statements are TRUE. if they all are, as the following code checks, then change wonGame = true;
+  
+  if (b1x == true)        //b1
+    {
+      if (b1y == true)    //b1
+        {
+          if (b2x == true)        //b2
+            {
+              if (b2y == true)    //b2
+                {
+                  if (b3x == true)        //b3
+                    {
+                      if (b3y == true)    //b3
+                        {
+                          if (b4x == true)        //b4
+                            {
+                              if (b4y == true)    //b4
+                                {
+                                  if (b5x == true)        //b5
+                                    {
+                                      if (b5y == true)    //b5
+                                        {
+                                          if (b6x == true)        //b6
+                                            {
+                                              if (b6y == true)    //b6
+                                                {
+                                                  if (b7x == true)        //b7
+                                                    {
+                                                      if (b7y == true)    //b7
+                                                        {
+                                                          if (b8x == true)        //b8
+                                                            {
+                                                              if (b8y == true)    //b8
+                                                                {
+                                                                  if (b9x == true)        //b9
+                                                                    {
+                                                                      if (b9y == true)    //b9
+                                                                        {
+                                                                          if (b10x == true)        //b10
+                                                                            {
+                                                                              if (b10y == true)    //b10
+                                                                                {
+                                                                                  if (b11x == true)        //b11
+                                                                                    {
+                                                                                      if (b11y == true)    //b11
+                                                                                        {
+                                                                                          if (b12x == true)        //b12
+                                                                                            {
+                                                                                              if (b12y == true)    //b12
+                                                                                                {
+                                                                                                  if (b13x == true)        //b13
+                                                                                                    {
+                                                                                                      if (b13y == true)    //b13
+                                                                                                        {
+                                                                                                          if (b14x == true)        //b14
+                                                                                                            {
+                                                                                                              if (b14y == true)    //b14
+                                                                                                                {
+                                                                                                                  if (b15x == true)        //b15
+                                                                                                                    {
+                                                                                                                      if (b15y == true)    //b15
+                                                                                                                        {
+                                                                                                                          if (b16x == true)        //b16
+                                                                                                                            {
+                                                                                                                              if (b16y == true)    //b16
+                                                                                                                                {
+                                                                                                                                  wonGame = true;
+                                                                                                                                }
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+void checkAllColors() //checks colors on line and row. hard coding point by point because cannot come up with a faster way
+{
+  
+  //b1 i.e [0]
+       if (boardPoints[0].z == boardPoints[1].z || boardPoints[0].z == boardPoints[2].z || boardPoints[0].z == boardPoints[3].z) //b1 X
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b1x = true;
+         }
+       if (boardPoints[0].z == boardPoints[4].z || boardPoints[0].z == boardPoints[8].z || boardPoints[0].z == boardPoints[12].z) //b2 Y
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b1y = true;
+         }
+         
+  //b2 i.e [1]
+      if (boardPoints[1].z == boardPoints[0].z || boardPoints[1].z == boardPoints[2].z || boardPoints[1].z == boardPoints[3].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b2x = true;
+         }
+       if (boardPoints[1].z == boardPoints[5].z || boardPoints[1].z == boardPoints[9].z || boardPoints[1].z == boardPoints[13].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b2y = true;
+         }
+  
+  //b3 i.e [2]
+       if (boardPoints[2].z == boardPoints[0].z || boardPoints[2].z == boardPoints[1].z || boardPoints[2].z == boardPoints[3].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b3x = true;
+         }
+       if (boardPoints[2].z == boardPoints[6].z || boardPoints[2].z == boardPoints[10].z || boardPoints[2].z == boardPoints[14].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b3y = true;
+         }
+  
+  //b4 i.e [3]
+       if (boardPoints[3].z == boardPoints[0].z || boardPoints[3].z == boardPoints[1].z || boardPoints[3].z == boardPoints[2].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b4x = true;
+         }
+       if (boardPoints[3].z == boardPoints[7].z || boardPoints[3].z == boardPoints[11].z || boardPoints[3].z == boardPoints[15].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b4y = true;
+         }
+  
+  //b5 i.e [4]
+       if (boardPoints[4].z == boardPoints[5].z || boardPoints[4].z == boardPoints[6].z || boardPoints[4].z == boardPoints[7].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b5x = true;
+         }
+       if (boardPoints[4].z == boardPoints[0].z || boardPoints[4].z == boardPoints[8].z || boardPoints[4].z == boardPoints[12].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b5y = true;
+         }
+  
+  //b6 i.e [5]
+       if (boardPoints[5].z == boardPoints[4].z || boardPoints[5].z == boardPoints[6].z || boardPoints[5].z == boardPoints[7].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b6x = true;
+         }
+       if (boardPoints[5].z == boardPoints[1].z || boardPoints[5].z == boardPoints[9].z || boardPoints[5].z == boardPoints[13].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b6y = true;
+         }
+  
+  //b7 i.e [6]
+       if (boardPoints[6].z == boardPoints[4].z || boardPoints[6].z == boardPoints[5].z || boardPoints[6].z == boardPoints[7].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b7x = true;
+         }
+       if (boardPoints[6].z == boardPoints[2].z || boardPoints[6].z == boardPoints[10].z || boardPoints[6].z == boardPoints[14].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b7y = true;
+         }
+  
+  //b8 i.e [7]
+       if (boardPoints[7].z == boardPoints[4].z || boardPoints[7].z == boardPoints[5].z || boardPoints[7].z == boardPoints[6].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b8x = true;
+         }
+       if (boardPoints[7].z == boardPoints[3].z || boardPoints[7].z == boardPoints[11].z || boardPoints[7].z == boardPoints[15].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b8y = true;
+         }
+  
+  //b9 i.e [8]
+       if (boardPoints[8].z == boardPoints[9].z || boardPoints[8].z == boardPoints[10].z || boardPoints[8].z == boardPoints[11].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b9x = true;
+         }
+       if (boardPoints[8].z == boardPoints[0].z || boardPoints[8].z == boardPoints[4].z || boardPoints[8].z == boardPoints[12].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b9y = true;
+         }
+  
+  //b10 i.e [9]
+         if (boardPoints[9].z == boardPoints[8].z || boardPoints[9].z == boardPoints[10].z || boardPoints[9].z == boardPoints[11].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b10x = true;
+         }
+       if (boardPoints[9].z == boardPoints[1].z || boardPoints[9].z == boardPoints[5].z || boardPoints[9].z == boardPoints[13].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b10y = true;
+         }
+  
+  //b11 i.e [10]
+       if (boardPoints[10].z == boardPoints[8].z || boardPoints[10].z == boardPoints[9].z || boardPoints[10].z == boardPoints[11].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b11x = true;
+         }
+       if (boardPoints[10].z == boardPoints[2].z || boardPoints[10].z == boardPoints[6].z || boardPoints[10].z == boardPoints[14].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b11y = true;
+         }
+  
+  //b12 i.e [11]
+       if (boardPoints[11].z == boardPoints[8].z || boardPoints[11].z == boardPoints[9].z || boardPoints[11].z == boardPoints[10].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b12x = true;
+         }
+       if (boardPoints[11].z == boardPoints[3].z || boardPoints[11].z == boardPoints[7].z || boardPoints[11].z == boardPoints[15].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b12y = true;
+         }
+  
+  //b13 i.e [12]
+       if (boardPoints[12].z == boardPoints[13].z || boardPoints[12].z == boardPoints[14].z || boardPoints[12].z == boardPoints[15].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b13x = true;
+         }
+       if (boardPoints[12].z == boardPoints[0].z || boardPoints[12].z == boardPoints[4].z || boardPoints[12].z == boardPoints[8].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b13y = true;
+         }
+  
+  //b14 i.e [13]
+       if (boardPoints[13].z == boardPoints[12].z || boardPoints[13].z == boardPoints[14].z || boardPoints[13].z == boardPoints[15].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b14x = true;
+         }
+       if (boardPoints[13].z == boardPoints[1].z || boardPoints[13].z == boardPoints[5].z || boardPoints[13].z == boardPoints[7].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b14y = true;
+         }
+  
+  //b15 i.e [14]
+       if (boardPoints[14].z == boardPoints[12].z || boardPoints[14].z == boardPoints[13].z || boardPoints[14].z == boardPoints[15].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b15x = true;
+         }
+       if (boardPoints[14].z == boardPoints[2].z || boardPoints[14].z == boardPoints[6].z || boardPoints[14].z == boardPoints[10].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b15y = true;
+         }
+  
+  //b16 i.e [15]
+       if (boardPoints[15].z == boardPoints[12].z || boardPoints[15].z == boardPoints[13].z || boardPoints[15].z == boardPoints[14].z) // X row
+         {
+           flashing();
+         }
+       else //if there are none of the same color on X row
+         {
+           boolean b16x = true;
+         }
+       if (boardPoints[15].z == boardPoints[3].z || boardPoints[15].z == boardPoints[7].z || boardPoints[15].z == boardPoints[11].z) // Y collumn
+         {
+           flashing();
+         }
+       else //if there are none of the same color on Y collumn 
+         {
+           boolean b16y = true;
+         }
+         
+}
+
+
+
+
+
+
+
 
 //void flashing() //make the dots flash if they're on the same row or column
 //{
