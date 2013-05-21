@@ -1,25 +1,27 @@
 #include <MeggyJrSimple.h>  
+/*
+Unfriendly Colors is a game inspired by both Bejeweled and Sudoku. The board starts by being completely covered in 16 2x2 squares, each a random color between 1 and 6 in the Meggy colors
+(red, orange, yellow, green, blue, violet). If the same color is present on the same x or y (row or column) more than once, the colors will flash, indicating to the player that they cannot be there.
+This part is taken from the idea of sudoku and not being able to have the same number(color) on the same row or column.
 
-/* have curser flash, draw four arrays with the diff colors.
-write in code that's like, if one array color = another array color
-on that line/column, have it flash. and if it all works out, change the
-boolean statement and have the level increase away from the tutorial
+The player's curser is a white, 2x2 square that is also flashing. It is moved with the arrow keys and selects and unselects the colored squares with the A and B buttons, respectively. Once a square is selected,
+it flashes (or continues to flash). The player then moves the curser to another square and selects it. The two will swap colors and stop flashing if necessary. Once there are no squares of the same color on 
+the same row or column the game with sound a tone and generate a new board (yay, you won that board!).
+
+If at any point an unsolvable board is generated or the player gets too frustrated, he/she can press both the A and B buttons at the same time and the board will regenerate with a different sound because it 
+is a reset, not a win.
+
+Because this is a puzzle game it can be continuously played without any sort of 'end'; just see how far you can get without having to regenerate the board!
+
+Unfriendly Colors is by Kapri Lisehora.
+
 */
 
-  
-//Upper left hand corner of each of the 16 2x2 squares. starting upper left, reading like a book. b for board
-//change 'random' to int color, which will be an array equaling whatever colors wanted?
-
-//
-//int swap = {x, y, z} //greater than possible.. the swaping point that fills the spot when switching
-
-//IF IMPOSSIBLE BOARD, PRESS A AND B AT THE SAME TIME TO GENERATE A NEW BOARD
-
-struct Board
+struct Board //background of 16 2x2 colored squares
 {
-  int x; //coordinates for each of the b points
+  int x; //coordinates for each of the board points (Board bx)
   int y;
-  int z;         //[13] = {1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14}; //colors the dots- needs to be RANDOM
+  int z;
 };
   
   //top row
@@ -43,26 +45,28 @@ struct Board
   Board b15 = {4, 1, random(6)+1};
   Board b16 = {6, 1, random(6)+1};
   
-  Board boardPoints[16] = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16};
+  Board boardPoints[16] = {b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16}; //array that holds all of the squares together
 
-
+  // Cursor
   int xcoord = 0; // X-coordinate of the cursor
   int ycoord = 7; // Y-coordinate of the cursor
-  int counter;
   
-  int selectedX; //location for storing selected points
-  int selectedY;
-  int selectedZ;
-  int selectedIndex;
-  boolean isSelecting = false;
+  int counter; //counts how many times through the loop (reset after 100). This is used for the flashing method.
   
-  boolean wonGame = false;
+  //Selecting and Unselecting
+  int selectedX; //location for storing selected x point 
+  int selectedY; //location for storing selected y point 
+  int selectedZ; //locatoin for temp. storing selected z point 
+  int selectedIndex; // where Z will be stored and switched with the second colored square
+  boolean isSelecting = false; //selecting/not selecting boolean for A and B buttons
+  
+  boolean wonGame = false; //if the game is won or not
   
   //boolean for checkAllColors
 
   //b1
   boolean b1x = false; //board point b1 x row
-  boolean b1y =false; //board point b1 y row .... etc for all following
+  boolean b1y =false; //board point b1 y column .... etc for all following
   
   //b2
   boolean b2x = false; 
@@ -132,35 +136,48 @@ void setup()
 
 void loop()       
 {
-  if (wonGame = false)
+  if (wonGame == false) //if the level has not been complete:
     {
-      drawBoard();
       counter++;
-      selectSquare();
-      checkAllColors();
-      if (counter > 100) counter = 0;
-      if (counter % 2 == 0) //makes all things insi
-        {
-          updateCursor();
+      if (counter > 10)
+         { 
+           counter = 0; //this resets the counter so it doesn't go over a hundred. Keeps it clean
          }
-      }
+      drawBoard(); //method that draws boardPoints as well as the three corresponding dots that go with each one (right of the point, below, and bottom right to make the 2x2 square)
+      checkAllColors(); //checks colors to see if they're on the same row/column
+      updateCursor(); //every time the counter is divisible by 2, update the curser (makes it flash)
+      selectSquare(); //method that allows the player to select and unselect squares
+     }
     
-  else //if wonGame is true, i.e. they have completed a levelll
+  else //if wonGame is true, i.e. they have completed a level
     {
       newBoard(); //draws a board with new z for each point.
     }
-  
+ DisplaySlate();
 }
 
-void flashing()
+void drawBoard() //outline method that draws all the dots
 {
-  if (counter % 2 == 0)
+  for(int i = 0; i<16; i++) //go along every px
     {
-      DisplaySlate();
-      delay(200);
-      ClearSlate();
+       DrawPx(boardPoints[i].x, boardPoints[i].y, boardPoints[i].z); //draws the upper left hand dot
+       DrawPx(boardPoints[i].x + 1, boardPoints[i].y, boardPoints[i].z); //draws the dot +1 in the x direction (right)
+       DrawPx(boardPoints[i].x, boardPoints[i].y - 1, boardPoints[i].z); // draws dot in the -1 y direction (bottom)
+       DrawPx(boardPoints[i].x + 1, boardPoints[i].y - 1, boardPoints[i].z); //draws dot in the +x, -y direction
+                                                                                   // (bottom right)
     }
 }
+
+void flashing() //causes it to flash
+{
+  if (counter % 2 == 0) //counter increases every time through loop. every time it's divisible by two, flash.
+    {
+      ClearSlate(); //clear the slate
+      drawBoard();
+      delay(10); //hold it for .2 of a second
+    }
+}
+
 
 
 void selectSquare() //selecting one of the square blocks. xcoord,ycoord selects the given board point.
@@ -168,77 +185,70 @@ void selectSquare() //selecting one of the square blocks. xcoord,ycoord selects 
   CheckButtonsDown();
   if (Button_A) //select
     {
-      //store points in empty ints 
-      if (isSelecting == false)
+      if (isSelecting == false) //if nothing is currently selected, i.e it's the first square the player is selecting out of the two needed to switch colors
         {
-          isSelecting = true;
-          //A button has been pressed for the first time, selecting the point that it is on. need to store that point.
-          selectedX = xcoord; //current x point of what the curser is on, also the x coord of the board point
-          selectedY = ycoord; //current Y point of what the curser is on, also the y coord of the board point
+          isSelecting = true; //A button has been pressed for the first time. Now, the next time it is pressed, it will regester and switch the colors. Need to store the points of the first selectiong:
+          selectedX = xcoord; //current x point of what the curser is on, also the x coord of the board point (stores it)
+          selectedY = ycoord; //current Y point of what the curser is on, also the y coord of the board point (stores it)
           for (int i = 0; i < 16; i++)
           {
-            if (xcoord == boardPoints[i].x && ycoord == boardPoints[i].y)
+            if (xcoord == boardPoints[i].x && ycoord == boardPoints[i].y) //checks to see which board point the cursor is on
             {
+              flashing();
               selectedZ = boardPoints[i].z; //color of current  board point
-              selectedIndex = i; //current z color
-              break;
+              selectedIndex = i; //current z color. Stores the current z color in selectedIndex (ex. if it was b1 and b1 was colored red, 1 (the number for red) would be stored in selectedIndex)
+              break; //stops it from checking (so if it's b1, it doesn't go through and check the next 15)
             }
           }
         }
-      else //if isSelecting is true
+      else //if isSelecting is true (if another point has already been saved and A is being pressed for the second time)
         {
-          if (counter % 2 == 1) //every other turn, flash it to the same tempo as the curser but opposite it.
-            {
               flashing();
               for (int i = 0; i < 16; i++)
                 {
-                  if (xcoord == boardPoints[i].x && ycoord == boardPoints[i].y)
+                  if (xcoord == boardPoints[i].x && ycoord == boardPoints[i].y) //figure out which board point the cursor is on
                     {
                        boardPoints[i].z = boardPoints[selectedIndex].z; //color of current  board point
-                       boardPoints[selectedIndex].z = selectedIndex;
+                       boardPoints[selectedIndex].z = i; //switches that color with what was stored in selectedIndex (the color from the first point)
                        isSelecting = false;
                        levelComplete(); //check to see if that was the last one to fix, if so, wonGame will = true
                        break; //stops it from seraching
                      }
-          
                  }
             }
         }
-   if (Button_B)//unselect
+  if (Button_B)//unselect
      {
        isSelecting = false; //unselects the point
      }
-  if (Button_B && Button_A)
+  if (Button_B && Button_A || Button_A && Button_B) //redraws the board (two because the game can register one before the other)
     {
       for (int i = 0; i < 16; i++)
         {
-          Tone_Start(ToneC3, 100);
-          boardPoints[i].z = random(6)+1;
+          Tone_Start(ToneC3, 100); //play a sound because it's doing something significant
+          boardPoints[i].z = random(6)+1;  //regenerates the board's colors randomly
         }
     }
-  if (Button_A && Button_B)
-    {
-      for (int i = 0; i < 16; i++)
-        {
-          Tone_Start(ToneC3, 100);
-          boardPoints[i].z = random(6)+1;
-        }
-    }
-}
-}
-void drawCursor() //draw the curser as a 2x2 block
-{
-  DrawPx(xcoord, ycoord, 7);
-  DrawPx(xcoord + 1, ycoord, 7);
-  DrawPx(xcoord, ycoord - 1, 7);
-  DrawPx(xcoord + 1, ycoord - 1, 7);
 }
 
-void updateCursor()
+
+void drawCursor() //draw the curser as a 2x2 block
 {
-  drawCursor();
+  DrawPx(xcoord, ycoord, 7); //starting points, upper left hand corner, color white
+  DrawPx(xcoord + 1, ycoord, 7); //draws point to the right, same color
+  DrawPx(xcoord, ycoord - 1, 7); // draws the point below, same color
+  DrawPx(xcoord + 1, ycoord - 1, 7); //draws point bottom right, same color
+}
+
+void updateCursor() //updates the location of the cursor
+{
+  drawCursor(); //calls upon the method that draws out xcoord,ycoord and the corresponding three points that make it a 2x2 square
+  if (counter % 2 == 0)
+    {
+      flashing();
+    }
   
-  CheckButtonsDown(); //check to see which button has been pressed
+  CheckButtonsPress(); //check to see which button has been pressed
   
   if (Button_Up) //move dot up one space
     {
@@ -270,44 +280,13 @@ void updateCursor()
 }
 
 
-void drawBoard() //outline loop that draws all the dots
-{
-  for(int i = 0; i<16; i++) //go along every px
-    {
-       DrawPx(boardPoints[i].x, boardPoints[i].y, boardPoints[i].z); //RANDOM Vx4
-       DrawPx(boardPoints[i].x + 1, boardPoints[i].y, boardPoints[i].z);
-       DrawPx(boardPoints[i].x, boardPoints[i].y - 1, boardPoints[i].z);
-       DrawPx(boardPoints[i].x + 1, boardPoints[i].y - 1, boardPoints[i].z); 
-    }
-}
-
-
-//void flashing() //makes it flash
-//{
-//  for (int i = 0; i<16; i++)
-//  {
-//    for (int j = j+1; j<16; j++)
-//      {
-//        if (boardPoints[i].x == boardPoints[j].x || boardPoints[i].y == boardPoints[j].y) //draw out lines and columns
-//          {
-//            if (boardPoints[i].z == boardPoints[j].z) //if they have the same z (color) //ERROR
-//            {
-//              if (counter % 2 == 1) //every other time through the loop, flash
-//              {
-//                ClearSlate();
-//              }
-//            }
-//          }
-//      }
-//  }
-//}
 
 void newBoard() //genearates new random z for all points in board points.. plays a sound, player 'levels up'
 {
   for (int i = 0; i < 16; i++)
     {
-      Tone_Start(ToneFs3, 100); 
-      boardPoints[i].z = random(6)+1;
+      Tone_Start(ToneFs3, 100); // plays a sound
+      boardPoints[i].z = random(6)+1; //regenerates the color variable (z) as random between 1 and six
       wonGame = false;
     }
 }
@@ -422,7 +401,7 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
   //b1 i.e [0]
        if (boardPoints[0].z == boardPoints[1].z || boardPoints[0].z == boardPoints[2].z || boardPoints[0].z == boardPoints[3].z) //b1 X
          {
-           flashing();
+            flashing();
          }
        else //if there are none of the same color on X row
          {
@@ -432,7 +411,7 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b1y = true;
          }
@@ -446,11 +425,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b2x = true;
          }
-       if (boardPoints[1].z == boardPoints[5].z || boardPoints[1].z == boardPoints[9].z || boardPoints[1].z == boardPoints[13].z) // Y collumn
+       if (boardPoints[1].z == boardPoints[5].z || boardPoints[1].z == boardPoints[9].z || boardPoints[1].z == boardPoints[13].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b2y = true;
          }
@@ -464,11 +443,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b3x = true;
          }
-       if (boardPoints[2].z == boardPoints[6].z || boardPoints[2].z == boardPoints[10].z || boardPoints[2].z == boardPoints[14].z) // Y collumn
+       if (boardPoints[2].z == boardPoints[6].z || boardPoints[2].z == boardPoints[10].z || boardPoints[2].z == boardPoints[14].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b3y = true;
          }
@@ -482,11 +461,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b4x = true;
          }
-       if (boardPoints[3].z == boardPoints[7].z || boardPoints[3].z == boardPoints[11].z || boardPoints[3].z == boardPoints[15].z) // Y collumn
+       if (boardPoints[3].z == boardPoints[7].z || boardPoints[3].z == boardPoints[11].z || boardPoints[3].z == boardPoints[15].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b4y = true;
          }
@@ -500,11 +479,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b5x = true;
          }
-       if (boardPoints[4].z == boardPoints[0].z || boardPoints[4].z == boardPoints[8].z || boardPoints[4].z == boardPoints[12].z) // Y collumn
+       if (boardPoints[4].z == boardPoints[0].z || boardPoints[4].z == boardPoints[8].z || boardPoints[4].z == boardPoints[12].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b5y = true;
          }
@@ -518,11 +497,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b6x = true;
          }
-       if (boardPoints[5].z == boardPoints[1].z || boardPoints[5].z == boardPoints[9].z || boardPoints[5].z == boardPoints[13].z) // Y collumn
+       if (boardPoints[5].z == boardPoints[1].z || boardPoints[5].z == boardPoints[9].z || boardPoints[5].z == boardPoints[13].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b6y = true;
          }
@@ -536,11 +515,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b7x = true;
          }
-       if (boardPoints[6].z == boardPoints[2].z || boardPoints[6].z == boardPoints[10].z || boardPoints[6].z == boardPoints[14].z) // Y collumn
+       if (boardPoints[6].z == boardPoints[2].z || boardPoints[6].z == boardPoints[10].z || boardPoints[6].z == boardPoints[14].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b7y = true;
          }
@@ -554,11 +533,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b8x = true;
          }
-       if (boardPoints[7].z == boardPoints[3].z || boardPoints[7].z == boardPoints[11].z || boardPoints[7].z == boardPoints[15].z) // Y collumn
+       if (boardPoints[7].z == boardPoints[3].z || boardPoints[7].z == boardPoints[11].z || boardPoints[7].z == boardPoints[15].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b8y = true;
          }
@@ -572,11 +551,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b9x = true;
          }
-       if (boardPoints[8].z == boardPoints[0].z || boardPoints[8].z == boardPoints[4].z || boardPoints[8].z == boardPoints[12].z) // Y collumn
+       if (boardPoints[8].z == boardPoints[0].z || boardPoints[8].z == boardPoints[4].z || boardPoints[8].z == boardPoints[12].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b9y = true;
          }
@@ -590,11 +569,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b10x = true;
          }
-       if (boardPoints[9].z == boardPoints[1].z || boardPoints[9].z == boardPoints[5].z || boardPoints[9].z == boardPoints[13].z) // Y collumn
+       if (boardPoints[9].z == boardPoints[1].z || boardPoints[9].z == boardPoints[5].z || boardPoints[9].z == boardPoints[13].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b10y = true;
          }
@@ -608,11 +587,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b11x = true;
          }
-       if (boardPoints[10].z == boardPoints[2].z || boardPoints[10].z == boardPoints[6].z || boardPoints[10].z == boardPoints[14].z) // Y collumn
+       if (boardPoints[10].z == boardPoints[2].z || boardPoints[10].z == boardPoints[6].z || boardPoints[10].z == boardPoints[14].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b11y = true;
          }
@@ -626,11 +605,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b12x = true;
          }
-       if (boardPoints[11].z == boardPoints[3].z || boardPoints[11].z == boardPoints[7].z || boardPoints[11].z == boardPoints[15].z) // Y collumn
+       if (boardPoints[11].z == boardPoints[3].z || boardPoints[11].z == boardPoints[7].z || boardPoints[11].z == boardPoints[15].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b12y = true;
          }
@@ -644,11 +623,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b13x = true;
          }
-       if (boardPoints[12].z == boardPoints[0].z || boardPoints[12].z == boardPoints[4].z || boardPoints[12].z == boardPoints[8].z) // Y collumn
+       if (boardPoints[12].z == boardPoints[0].z || boardPoints[12].z == boardPoints[4].z || boardPoints[12].z == boardPoints[8].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b13y = true;
          }
@@ -662,11 +641,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b14x = true;
          }
-       if (boardPoints[13].z == boardPoints[1].z || boardPoints[13].z == boardPoints[5].z || boardPoints[13].z == boardPoints[7].z) // Y collumn
+       if (boardPoints[13].z == boardPoints[1].z || boardPoints[13].z == boardPoints[5].z || boardPoints[13].z == boardPoints[7].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b14y = true;
          }
@@ -680,11 +659,11 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b15x = true;
          }
-       if (boardPoints[14].z == boardPoints[2].z || boardPoints[14].z == boardPoints[6].z || boardPoints[14].z == boardPoints[10].z) // Y collumn
+       if (boardPoints[14].z == boardPoints[2].z || boardPoints[14].z == boardPoints[6].z || boardPoints[14].z == boardPoints[10].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b15y = true;
          }
@@ -698,41 +677,18 @@ void checkAllColors() //checks colors on line and row. hard coding point by poin
          {
            boolean b16x = true;
          }
-       if (boardPoints[15].z == boardPoints[3].z || boardPoints[15].z == boardPoints[7].z || boardPoints[15].z == boardPoints[11].z) // Y collumn
+       if (boardPoints[15].z == boardPoints[3].z || boardPoints[15].z == boardPoints[7].z || boardPoints[15].z == boardPoints[11].z) // Y column
          {
            flashing();
          }
-       else //if there are none of the same color on Y collumn 
+       else //if there are none of the same color on Y column 
          {
            boolean b16y = true;
-         }
-         
+         }    
 }
 
 
 
-
-
-
-
-
-//void flashing() //make the dots flash if they're on the same row or column
-//{
-//  for (int k = 0; k < 16; i++)
-//    {
-//      for (int j = k; j < 16; j++)
-//         if(b1.z == b2.z)
-//           {
-//             //blink...
-//             
-////             board[k].x == board[j].x or board[k].y == board[j].y then 
-////             if board[k].z == board[j].z
-//           }
-//       
-//    }
-//}
-
-//
-//for (int i =0; i< arraysize; i++){
-//for (int j = i; j < arraysize; j++ ){
-//compare array[i] to array[j] and do w.e you need
+/*
+levelComplete() and checkAllColors are the least efficient methods in my game. They are hard coded because I couldn't figure out a more efficient way to do what I wanted.
+*/
