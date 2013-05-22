@@ -131,7 +131,9 @@ struct Board //background of 16 2x2 colored squares
 
 void setup()                   
 {
-  MeggyJrSimpleSetup();     
+  MeggyJrSimpleSetup();
+
+  Serial.begin(9600);  
 }
 
 void loop()       
@@ -163,8 +165,7 @@ void drawBoard() //outline method that draws all the dots
        DrawPx(boardPoints[i].x, boardPoints[i].y, boardPoints[i].z); //draws the upper left hand dot
        DrawPx(boardPoints[i].x + 1, boardPoints[i].y, boardPoints[i].z); //draws the dot +1 in the x direction (right)
        DrawPx(boardPoints[i].x, boardPoints[i].y - 1, boardPoints[i].z); // draws dot in the -1 y direction (bottom)
-       DrawPx(boardPoints[i].x + 1, boardPoints[i].y - 1, boardPoints[i].z); //draws dot in the +x, -y direction
-                                                                                   // (bottom right)
+       DrawPx(boardPoints[i].x + 1, boardPoints[i].y - 1, boardPoints[i].z); //draws dot in the +x, -y direction (bottom right)
     }
 }
 
@@ -174,7 +175,6 @@ void flashing() //causes it to flash
     {
       ClearSlate(); //clear the slate
       drawBoard();
-      delay(10); //hold it for .2 of a second
     }
 }
 
@@ -187,6 +187,7 @@ void selectSquare() //selecting one of the square blocks. xcoord,ycoord selects 
     {
       if (isSelecting == false) //if nothing is currently selected, i.e it's the first square the player is selecting out of the two needed to switch colors
         {
+          Serial.println("Selected with A for the first time");
           isSelecting = true; //A button has been pressed for the first time. Now, the next time it is pressed, it will regester and switch the colors. Need to store the points of the first selectiong:
           selectedX = xcoord; //current x point of what the curser is on, also the x coord of the board point (stores it)
           selectedY = ycoord; //current Y point of what the curser is on, also the y coord of the board point (stores it)
@@ -203,22 +204,24 @@ void selectSquare() //selecting one of the square blocks. xcoord,ycoord selects 
         }
       else //if isSelecting is true (if another point has already been saved and A is being pressed for the second time)
         {
-              flashing();
-              for (int i = 0; i < 16; i++)
+          flashing();
+          for (int i = 0; i < 16; i++)
+            {
+              if (xcoord == boardPoints[i].x && ycoord == boardPoints[i].y) //figure out which board point the cursor is on
                 {
-                  if (xcoord == boardPoints[i].x && ycoord == boardPoints[i].y) //figure out which board point the cursor is on
-                    {
-                       boardPoints[i].z = boardPoints[selectedIndex].z; //color of current  board point
-                       boardPoints[selectedIndex].z = i; //switches that color with what was stored in selectedIndex (the color from the first point)
-                       isSelecting = false;
-                       levelComplete(); //check to see if that was the last one to fix, if so, wonGame will = true
-                       break; //stops it from seraching
-                     }
+                   Serial.println("Selected with A for the second time");
+                   boardPoints[i].z = boardPoints[selectedIndex].z; //color of current  board point
+                   boardPoints[selectedIndex].z = i; //switches that color with what was stored in selectedIndex (the color from the first point)
+                   isSelecting = false;
+                   levelComplete(); //check to see if that was the last one to fix, if so, wonGame will = true
+                   break; //stops it from seraching
                  }
             }
-        }
+         }
+     }
   if (Button_B)//unselect
      {
+       Serial.println("unselected");
        isSelecting = false; //unselects the point
      }
   if (Button_B && Button_A || Button_A && Button_B) //redraws the board (two because the game can register one before the other)
@@ -246,6 +249,7 @@ void updateCursor() //updates the location of the cursor
   if (counter % 2 == 0)
     {
       flashing();
+      delay(200);
     }
   
   CheckButtonsPress(); //check to see which button has been pressed
